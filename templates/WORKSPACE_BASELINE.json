@@ -1,0 +1,23 @@
+{
+  "capturedAt": "<ISO-8601>",
+  "taskId": "<TASK-ID>",
+  "components": [
+    {
+      "name": "<service-or-module>",
+      "repository": "<owner/repository-or-local-path>",
+      "branch": "<branch>",
+      "commit": "<full-commit-sha>",
+      "artifact": "<package-or-image-digest-if-applicable>",
+      "worktree": "clean",
+      "contractOwner": true
+    }
+  ],
+  "integrationContracts": [
+    {
+      "name": "<contract>",
+      "owner": "<component>",
+      "consumers": ["<component>"],
+      "version": "<version-or-digest>"
+    }
+  ]
+}
