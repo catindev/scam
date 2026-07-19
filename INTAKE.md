@@ -1,254 +1,261 @@
-# Task intake: from a user request to SCAM work
+# Intake задачи: из запроса пользователя в SCAM-работу
 
-## 1. Purpose
+## 1. Назначение
 
-The user should be able to describe a goal in ordinary language and add:
+Пользователь должен иметь возможность описать цель обычным языком и добавить:
 
 ```text
 Работай по SCAM.
 ```
 
-The agent, not the user, turns that request into a bounded SCAM unit of work.
-The user reviews a short preview of the agent's understanding, corrects it if
-needed, and approves the start.
+Агент, а не пользователь, превращает запрос в ограниченную единицу SCAM-работы.
+Пользователь просматривает короткое превью понимания задачи, при необходимости
+исправляет его и подтверждает начало.
 
-Intake is not implementation and is not a miniature project audit. Its job is to
-identify the kind of work, the next independently acceptable outcome, its
-boundaries, evidence and external authority.
+Intake — не реализация и не миниатюрный аудит всего проекта. Его задача —
+определить тип работы, ближайший независимо принимаемый результат, границы,
+доказательства и внешние полномочия.
 
-## 2. When intake is required
+## 2. Когда нужен intake
 
-Use intake before any non-trivial repository or external-state work:
+Проводи intake перед любой нетривиальной работой с репозиторием или внешним
+состоянием:
 
-- design or research that produces a project decision;
-- diagnosis of a defect or incident;
-- implementation, refactoring, migration or test work;
-- review of code, evidence or a completed task;
-- deploy, release, publish or another external operation;
-- continuation of unfinished work in a new chat.
+- проектирование или исследование, создающее проектное решение;
+- диагностика дефекта или инцидента;
+- реализация, рефакторинг, migration или изменение тестов;
+- review кода, evidence или завершённой задачи;
+- deploy, release, publish или другая внешняя операция;
+- продолжение незавершённой работы в новом чате.
 
-A direct answer, explanation, translation, status report or read-only lookup that
-does not create a project artifact or change state does not need a Task Contract.
-Answer it directly. Do not create process documentation merely because SCAM was
-mentioned.
+Прямой ответ, объяснение, перевод, status report или read-only lookup, который не
+создаёт проектный артефакт и не меняет состояние, не требует Task Contract.
+Ответь напрямую. Не создавай процессную документацию только потому, что
+пользователь упомянул SCAM.
 
-## 3. Bounded orientation
+## 3. Ограниченная ориентация
 
-Before the preview, read only enough to ground the task:
+До превью прочитай только то, что необходимо для привязки задачи к фактам:
 
-1. project and SCAM entrypoints;
-2. current Project Context;
-3. an active Task Contract or Handoff, if one exists;
-4. the directly affected contract, code and focused tests;
-5. Git/workspace state needed to protect existing changes.
+1. проектный и SCAM entrypoints;
+2. актуальный Project Context;
+3. активный Task Contract или Handoff, если он есть;
+4. непосредственно затронутый контракт, код и focused tests;
+5. состояние Git/workspace, необходимое для сохранения чужих изменений.
 
-Do not install dependencies, rebuild the project, run the full test suite,
-redesign the toolchain or read all historical documentation during intake.
-Record an environment fact only when it materially affects the proposed owning
-gate.
+Во время intake не устанавливай зависимости, не пересобирай проект, не запускай
+полный test suite, не перепроектируй toolchain и не читай всю историческую
+документацию. Фиксируй факт окружения только тогда, когда он существенно влияет
+на предлагаемый owning gate.
 
-Separate every statement into one of these sources:
+Отделяй источники утверждений:
 
-- explicit user requirement;
-- verified project fact;
-- accepted project decision;
-- agent assumption or recommendation.
+- явное требование пользователя;
+- проверенный факт проекта;
+- принятое проектное решение;
+- допущение или рекомендация агента.
 
-An assumption never becomes a requirement merely because it is convenient.
+Допущение не становится требованием только потому, что оно удобно агенту.
 
-## 4. Classify the request
+## 4. Классификация запроса
 
-Choose exactly one active task type.
+Выбери ровно один тип активной задачи.
 
-| Type | Use when | Result | Default mutation boundary |
+| Тип | Когда использовать | Результат | Граница изменений по умолчанию |
 | --- | --- | --- | --- |
-| `DESIGN` | a material product or architecture choice is still open | decision/design document and implementation decomposition | code read-only |
-| `DIAGNOSIS` | a symptom is known but its first cause is not proven | reproduction, localized cause and evidence | code read-only except a minimal diagnostic test if necessary |
-| `IMPLEMENTATION` | the intended behavior and important decisions are known | tested change in code/config/docs | paths declared by the Task Contract |
-| `REVIEW` | a concrete contract, diff and evidence must be evaluated | findings and `ACCEPT` or `CHANGES_REQUIRED` | read-only |
-| `OPERATION` | the outcome changes an environment or external system | preflight, execution, post-check and recovery record | only the named target and authorized action |
-| `CONTINUATION` | an existing unfinished task moves to another chat/agent | verified baseline and the next step of the same contract | inherited from the existing contract |
+| `DESIGN` | открыт существенный продуктовый или архитектурный выбор | decision/design document и декомпозиция реализации | код read-only |
+| `DIAGNOSIS` | симптом известен, но первая причина не доказана | воспроизведение, локализованная причина и evidence | код read-only, кроме минимального диагностического теста при необходимости |
+| `IMPLEMENTATION` | ожидаемое поведение и важные решения известны | проверенное изменение кода/config/docs | пути из Task Contract |
+| `REVIEW` | нужно оценить конкретный контракт, diff и evidence | findings и `ACCEPT` или `CHANGES_REQUIRED` | read-only |
+| `OPERATION` | результат меняет окружение или внешнюю систему | preflight, выполнение, post-check и recovery record | только названная цель и разрешённое действие |
+| `CONTINUATION` | существующая незавершённая задача переходит в другой чат/агент | проверенный baseline и следующий шаг того же контракта | наследуется из существующего контракта |
 
-Classification rules:
+Правила классификации:
 
-- unknown desired design → `DESIGN`, not implementation;
-- known desired behavior but unknown defect cause → `DIAGNOSIS` before a fix;
-- known cause and accepted expected behavior → `IMPLEMENTATION`;
-- completed implementation awaiting independent evaluation → `REVIEW`;
-- deploy/publish/merge is `OPERATION`, even when implementation preceded it;
-- an existing active Task Contract takes precedence over creating a duplicate
-  `CONTINUATION` task.
+- неизвестен желаемый дизайн → `DESIGN`, а не implementation;
+- желаемое поведение известно, но причина дефекта нет → сначала `DIAGNOSIS`;
+- причина известна и ожидаемое поведение принято → `IMPLEMENTATION`;
+- реализация закончена и ожидает независимой оценки → `REVIEW`;
+- deploy/publish/merge является `OPERATION`, даже если ему предшествовала
+  реализация;
+- существующий активный Task Contract имеет приоритет над созданием
+  дублирующей `CONTINUATION` task.
 
-If a request mixes several types, decompose it in dependency order:
+Если запрос смешивает несколько типов, декомпозируй его в порядке зависимостей:
 
 ```text
-design → diagnosis (when needed) → implementation → review → operation
+design → diagnosis (когда нужна) → implementation → review → operation
 ```
 
-Create and activate only the first independently acceptable task. Put later work
-in a short proposed decomposition, not into the current acceptance.
+Создай и активируй только первую независимо принимаемую задачу. Последующую
+работу помести в короткую предлагаемую декомпозицию, а не в текущий acceptance.
 
-## 5. Determine whether the request must be split
+## 5. Когда запрос нужно разделить
 
-Split before implementation when any of these is true:
+Раздели запрос до реализации, если выполняется хотя бы одно условие:
 
-- outcomes can be accepted or released independently;
-- different outcomes require different owning gates;
-- one part is read-only and another mutates code or an external system;
-- a material choice must be made before implementation can be specified;
-- deploy/publish/merge is bundled with building the change;
-- review is bundled with fixing everything the review might discover;
-- several services are mentioned but no single cross-service contract defines
-  one observable result.
+- результаты можно принять или выпустить независимо;
+- разные результаты требуют разных owning gates;
+- одна часть read-only, а другая меняет код или внешнюю систему;
+- до реализации требуется существенный выбор;
+- deploy/publish/merge объединён с созданием изменения;
+- review объединён с исправлением всего, что reviewer может обнаружить;
+- упомянуто несколько сервисов, но единый межсервисный контракт не задаёт один
+  наблюдаемый результат.
 
-Do not split mechanical changes that are inseparable parts of one behavior, such
-as contract → provider → consumer → integration test.
+Не разделяй механические изменения, являющиеся неотделимыми частями одного
+поведения, например:
 
-For a broad milestone, show:
+```text
+contract → provider → consumer → integration test
+```
 
-1. the milestone outcome in one sentence;
-2. the ordered task decomposition;
-3. the one task proposed as active now.
+Для широкого milestone покажи:
 
-Do not create one Task Contract containing the entire roadmap.
+1. outcome milestone одним предложением;
+2. упорядоченную декомпозицию задач;
+3. одну задачу, предлагаемую активной сейчас.
 
-## 6. Draft the Task Contract
+Не создавай один Task Contract на весь roadmap.
 
-Reuse the project's existing task identifier and location conventions. If none
-exist, use `TASK-<YYYYMMDD>-<short-slug>` and store the contract under the
-project's agent-context tasks directory.
+## 6. Draft Task Contract
 
-Fill `templates/TASK.md` yourself. The user must not be asked to complete the
-template.
+Следуй существующим в проекте правилам идентификаторов и расположения задач. Если
+их нет, используй `TASK-<YYYYMMDD>-<short-slug>` и сохраняй контракт в каталоге
+задач agent context проекта.
 
-During intake the contract has status `DRAFT`. Only the Task Contract itself
-may be created or edited before approval; product code, configuration and
-external state remain unchanged.
+Сам заполни `templates/TASK.md`. Нельзя просить пользователя заполнить шаблон.
 
-Type-specific acceptance:
+Во время intake контракт имеет статус `DRAFT`. До подтверждения можно создавать
+и изменять только сам Task Contract; продуктовый код, конфигурация и внешнее
+состояние остаются неизменными.
+
+Acceptance зависит от типа задачи.
 
 ### DESIGN
 
-- the decision to make and constraints are explicit;
-- realistic options are compared;
-- one recommendation is argued;
-- affected public contracts, risks and open questions are named;
-- implementation is decomposed into later tasks;
-- no implementation is performed.
+- явно указаны решение, которое нужно принять, и ограничения;
+- сравнены реалистичные варианты;
+- одна рекомендация аргументирована;
+- названы затронутые публичные контракты, риски и открытые вопросы;
+- реализация разделена на последующие задачи;
+- реализация не выполняется.
 
 ### DIAGNOSIS
 
-- the symptom is reproduced or explicitly marked not reproducible;
-- the first supported cause is localized with evidence;
-- affected contract and blast radius are named;
-- competing hypotheses are rejected by evidence;
-- a minimal fix scope is proposed separately;
-- the fix is not implemented unless a new implementation task is approved.
+- симптом воспроизведён или явно помечен как невоспроизводимый;
+- первая подтверждённая причина локализована evidence;
+- названы затронутый контракт и blast radius;
+- конкурирующие гипотезы отвергнуты evidence;
+- минимальный scope исправления предложен отдельно;
+- исправление не реализуется без новой подтверждённой implementation task.
 
 ### IMPLEMENTATION
 
-Acceptance normally covers:
+Acceptance обычно покрывает:
 
-- the main observable behavior;
-- an error or boundary case;
-- compatibility or a named intentional break;
-- the smallest owning gate that proves the outcome;
-- package/integration/acceptance evidence when a lower-level test is insufficient.
+- главное наблюдаемое поведение;
+- ошибку или граничный случай;
+- совместимость или названный намеренный break;
+- минимальный owning gate, доказывающий outcome;
+- package/integration/acceptance evidence, если низкоуровневого теста
+  недостаточно.
 
 ### REVIEW
 
-The contract names the base, head/diff, originating Task Contract and evidence.
-Findings use only `BLOCKER`, `FOLLOW_UP` or `REJECTED`. The result is
-`ACCEPT` or `CHANGES_REQUIRED`; review does not silently repair the code.
+Контракт называет base, head/diff, исходный Task Contract и evidence. Findings
+используют только `BLOCKER`, `FOLLOW_UP` или `REJECTED`. Итог —
+`ACCEPT` или `CHANGES_REQUIRED`; review не исправляет код молча.
 
 ### OPERATION
 
-The contract names:
+Контракт называет:
 
-- exact target/environment and source artifact/commit/digest;
-- preflight and stop conditions;
-- authorized write action;
+- точную цель/environment и исходный artifact/commit/digest;
+- preflight и stop conditions;
+- разрешённое внешнее действие;
 - success checks;
-- recovery or rollback boundary;
-- evidence to preserve.
+- recovery или rollback boundary;
+- evidence, которое нужно сохранить.
 
-Never infer authority for deploy, publish, merge, production write, credentials
-or destructive cleanup from permission to edit code.
+Не выводи разрешение на deploy, publish, merge, production write, credentials
+или destructive cleanup из разрешения редактировать код.
 
 ### CONTINUATION
 
-Do not invent a new acceptance. Verify the existing Task Contract, Handoff,
-branch/commit and worktree. If they differ, report the delta before continuing.
+Не придумывай новый acceptance. Проверь существующий Task Contract, Handoff,
+branch/commit и worktree. Если они отличаются, покажи delta до продолжения.
 
-## 7. Show the SCAM Preview
+## 7. SCAM Preview
 
-Before implementation, show one compact preview:
+Перед реализацией покажи одно компактное превью:
 
 ```text
 SCAM Preview
 Type: <TYPE>
-Task: <ID — name>
-Outcome: <one observable result>
-In scope: <short list>
-Out of scope: <short list>
-Acceptance / owning gate: <essential checks and command/level>
-External actions: <allowed; approval required>
-Assumptions or decisions: <only material items>
-Split: <none, or ordered later tasks>
+Task: <ID — название>
+Outcome: <один наблюдаемый результат>
+In scope: <короткий список>
+Out of scope: <короткий список>
+Acceptance / owning gate: <основные проверки и команда/уровень>
+External actions: <разрешено; требует подтверждения>
+Assumptions or decisions: <только существенные пункты>
+Split: <none или упорядоченные последующие задачи>
 ```
 
-The preview summarizes the draft; it does not dump the whole template into chat.
+Превью кратко отражает draft, а не копирует весь шаблон в чат.
 
-Ask no more than three questions, and only when different answers would
-materially change the result, public contract, safety or external authority.
-For every question propose a recommended default and explain its consequence.
-Do not ask about information that the repository can answer.
+Задай не более трёх вопросов и только тогда, когда разные ответы существенно
+меняют результат, публичный контракт, безопасность или внешние полномочия. Для
+каждого вопроса предложи рекомендуемый default и объясни его последствие. Не
+спрашивай то, что можно прочитать в canonical sources проекта.
 
-End with one explicit request:
+Заверши одной явной просьбой:
 
 ```text
 Подтверди превью или поправь конкретный пункт. После подтверждения acceptance
 замораживается и я начинаю работу.
 ```
 
-If the user already said that the stated acceptance is frozen and explicitly
-authorized starting without another confirmation, create the contract as
-`FROZEN`, show the preview as a notice and proceed.
+Если пользователь уже объявил данный acceptance замороженным и явно разрешил
+начать без повторного подтверждения, создай контракт сразу со статусом
+`FROZEN`, покажи превью как уведомление и продолжай.
 
-## 8. Freeze and start
+## 8. Заморозка и начало работы
 
-After user approval:
+После подтверждения пользователя:
 
-1. apply any requested corrections;
-2. set Task Contract status to `FROZEN`;
-3. record the approval reference succinctly;
-4. begin the normal METHOD.md implementation cycle.
+1. внеси его исправления;
+2. установи Task Contract статус `FROZEN`;
+3. кратко зафиксируй ссылку на подтверждение;
+4. начни обычный рабочий цикл из `METHOD.md`.
 
-After the first product edit, the agent cannot change acceptance. A new finding
-becomes:
+После первого продуктового изменения агент не может менять acceptance. Новая
+находка становится:
 
-- `BLOCKER` only when it violates the frozen contract or a governing invariant;
-- `FOLLOW_UP` when useful but independently acceptable;
-- `SPLIT` when the approved task cannot safely remain one unit.
+- `BLOCKER`, только если нарушает замороженный контракт или governing invariant;
+- `FOLLOW_UP`, если полезна, но принимается независимо;
+- `SPLIT`, если подтверждённая задача не может безопасно остаться одной
+  единицей.
 
-Changing scope requires a new human decision, not a rewritten history.
+Изменение scope требует нового решения человека, а не переписывания истории.
 
-## 9. Anti-patterns
+## 9. Антипаттерны
 
-Do not:
+Нельзя:
 
-- make the user translate their request into the SCAM template;
-- spend the task proving that the local Node/npm version differs before defining
-  the product outcome;
-- call setup, baseline or documentation the completed user outcome;
-- turn a roadmap into one implementation task;
-- add requirements discovered by the agent after acceptance was frozen;
-- use a full repository audit as intake;
-- ask the user to approve facts that can be read from canonical project sources;
-- claim `PASS` for a command or external run that was not executed;
-- begin implementation while a material design decision remains hidden in an
-  assumption.
+- заставлять пользователя переводить запрос в SCAM-шаблон;
+- тратить задачу на доказательство отличия локальной версии Node/npm до
+  определения продуктового outcome;
+- называть setup, baseline или документацию завершённым пользовательским
+  outcome;
+- превращать roadmap в одну implementation task;
+- добавлять требования, найденные агентом после заморозки acceptance;
+- использовать полный аудит репозитория как intake;
+- просить пользователя подтвердить факты, читаемые из canonical project sources;
+- утверждать `PASS` для невыполненной команды или внешнего запуска;
+- начинать реализацию, спрятав существенный design choice в допущении.
 
-The quality test for intake is simple: after reading only the preview, the user
-can say whether the agent is solving the right problem, at the right boundary,
-with the right proof and authority.
+Критерий качества intake прост: прочитав только превью, пользователь может
+понять, решает ли агент правильную задачу, в правильных границах, с правильным
+доказательством и достаточными полномочиями.
