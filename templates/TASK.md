@@ -1,5 +1,12 @@
 # Task Contract: <ID — название>
 
+## Intake
+
+- Type: `DESIGN | DIAGNOSIS | IMPLEMENTATION | REVIEW | OPERATION | CONTINUATION`
+- Status: `DRAFT | FROZEN`
+- User intent: ...
+- Interpretation approved: `<reference or NOT_YET>`
+
 ## Outcome
 
 Наблюдаемый результат одним абзацем.
@@ -25,16 +32,22 @@
 - проектный entrypoint;
 - ...
 
-## Acceptance — frozen after first edit
+## Acceptance — frozen after approval and before first product edit
 
 - [ ] Поведение: ...
 - [ ] Ошибка/граница: ...
 - [ ] Совместимость: ...
 - [ ] Evidence: команда `<command>` завершается с кодом 0.
 
+Для `DESIGN`, `DIAGNOSIS`, `REVIEW`, `OPERATION` и `CONTINUATION`
+используй type-specific acceptance из `INTAKE.md`; не имитируй реализацию
+универсальными пунктами выше.
+
 ## Owning gate
 
-`focused | quick | package | integration | acceptance`
+`focused | quick | package | integration | acceptance | operation`
+
+Почему этот уровень закрывает Outcome: ...
 
 ## External actions
 
@@ -48,10 +61,16 @@ credentials, destructive operations.
 - `ASSUMPTION`: ...
 - `RISK`: ...
 
+## Proposed split
+
+`NONE` или упорядоченные последующие Task Contracts, не входящие в текущий
+acceptance:
+
+1. ...
+
 ## Stop conditions
 
 - нужен продуктовый/архитектурный выбор;
 - требуются новые полномочия;
 - задача затрагивает неуказанную публичную границу;
 - acceptance нельзя проверить в доступной среде.
-
